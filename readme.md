@@ -1,5 +1,3 @@
-Sure, here's a README file with some cute emojis for your repository!
-
 # Toeplitz Inversed Covariance based Online Segment in Pytorch 🚀
 
 This repository contains a PyTorch implementation of a Toeplitz Inversed Covariance based Online Segment (TICOS) model for time series data analysis. The TICOS model is a clustering-based method that uses a convolutional neural network (CNN) to learn a time-invariant representation of the time series data, which is then clustered using a modified version of the k-means algorithm.
