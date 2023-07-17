@@ -38,6 +38,6 @@ for epoch in range(num_epoch):
 
 This implementation is derived from the paper "Toeplitz Inverse Covariance-Based Clustering of Multivariate Time Series Data".
 
-## License 📝
+<!-- ## License 📝
 
-This code is released under the MIT License. See the LICENSE file for details.
+This code is released under the MIT License. See the LICENSE file for details. -->
