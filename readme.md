@@ -1,6 +1,6 @@
 # Toeplitz Inversed Covariance based Online Segment in Pytorch 🚀
 
-This repository contains a PyTorch implementation of a Toeplitz Inversed Covariance based Online Segment (TICOS) model for time series data analysis. The TICOS model is a clustering-based method that uses a convolutional neural network (CNN) to learn a time-invariant representation of the time series data, which is then clustered using a modified version of the k-means algorithm.
+This repository contains a PyTorch implementation of a Toeplitz Inversed Covariance based Online Segment (TICOS) model for time series data analysis. The TICOS model is a clustering-based method to learn a time-invariant representation of the time series data.
 
 ## Usage 📈
 
@@ -11,7 +11,7 @@ from load_data import XplaneDataset
 dataset = XplaneDataset(delta_t)
 ```
 
-To train the TICOS model on your dataset, you can use the `TIC` and `Loss` classes provided in the `tic.py` file. `TIC` is the main model class, which takes as input the number of sensors in the data, the time window size `delta_t`, and the number of clusters to use for clustering. `Loss` is a custom loss function that incorporates both cross-entropy loss and L1 regularization to encourage sparsity in the learned representation.
+To train the TICOS model on your dataset, you can use the `TIC` and `Loss` classes provided in the `TIC.py` file. `TIC` is the main model class, which takes as input the number of sensors in the data, the time window size `delta_t`, and the number of clusters to use for clustering. `Loss` is a custom loss function that incorporates both cross-entropy loss and L1 regularization to encourage sparsity in the learned representation.
 
 ```python
 from tic import TIC, Loss
@@ -36,7 +36,7 @@ for epoch in range(num_epoch):
 
 ## Acknowledgements 👏
 
-This implementation is based on the paper "Time-Invariant Clustering with Convolutional Neural Networks" by Wei-Ping Wang, Arash Mohammadi, and Parvez Ahammad.
+This implementation is derived from the paper "Toeplitz Inverse Covariance-Based Clustering of Multivariate Time Series Data".
 
 ## License 📝
 
