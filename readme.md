@@ -2,6 +2,17 @@
 
 This repository contains a PyTorch implementation of a Toeplitz Inversed Covariance based Online Segment (TICOS) model for time series data analysis. The TICOS model is a clustering-based method to learn a time-invariant representation of the time series data.
 
+> epoch 1 : 88.40296924708377 %
+	loss: 0.10282601574698536
+epoch 2 : 89.59915164369035 %
+	loss: 0.19914760540803442
+epoch 3 : 89.82820784729586 %
+	loss: 0.29481664973882954
+epoch 4 : 94.57900318133616 %
+	loss: 0.39088429775875166
+epoch 5 : 93.84941675503711 %
+	loss: 0.4866015293767571
+
 ## Usage 📈
 
 To use the TICOS model, you will need to provide a dataset of time series data. The `XplaneDataset` class in the `load_data.py` file provides an example dataset that you can use to test the model.

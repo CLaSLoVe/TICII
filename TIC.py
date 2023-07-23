@@ -77,8 +77,9 @@ if __name__ == '__main__':
     net = net.to(device)
     loss = Loss(net)
     updater = torch.optim.Adam(net.parameters(), lr=.01)
-    sum_loss = 0
+
     for i in range(num_epoch):
+        sum_loss = 0
         for batch in dataloader:
             X, y = batch
             X, y = X.to(device), y.to(device)
