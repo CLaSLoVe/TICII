@@ -49,18 +49,21 @@ class TIC(nn.Module):
         return torch.softmax(lle, dim=-1)
 
 
-class Loss(nn.Module):
-    def __init__(self, model):
-        super().__init__()
-        self.model = model
-        self.Lambda = nn.Parameter(torch.tensor([0.], device=device))
+criterion = nn.CrossEntropyLoss()
+l1_lambda = 0.01
 
-    def forward(self, output, target):
-        # L1 norm for sparse
-        l1_norm = torch.norm(self.model.mat, p=1, dim=[1, 2]).mean()
-        loss_fn = nn.CrossEntropyLoss()
-        loss = loss_fn(output, target) + l1_norm * self.Lambda
-        return loss
+
+def loss(model, outputs, targets):
+    # 计算交叉熵损失
+    ce_loss = criterion(outputs, targets)
+
+    # 计算L1正则化损失
+    l1_loss = torch.norm(model.mat, p=1, dim=[1, 2]).mean()
+
+    # 将两种损失结合起来
+    res = ce_loss + l1_lambda * l1_loss
+
+    return res
 
 
 if __name__ == '__main__':
@@ -75,8 +78,7 @@ if __name__ == '__main__':
 
     net = TIC(num_sensors, delta_t, num_clusters)
     net = net.to(device)
-    loss = Loss(net)
-    updater = torch.optim.Adam(net.parameters(), lr=.01)
+    updater = torch.optim.Adam(net.parameters(), lr=.001)
 
     for i in range(num_epoch):
         sum_loss = 0
@@ -84,10 +86,18 @@ if __name__ == '__main__':
             X, y = batch
             X, y = X.to(device), y.to(device)
             y_hat = net(X)
-            l = loss(y_hat, y)
+            l = loss(net, y_hat, y)
             updater.zero_grad()
             l.backward()
             updater.step()
+
+            # 计算梯度范数并打印
+            grad_norm = 0
+            for p in net.parameters():
+                grad_norm += torch.norm(p.grad) ** 2
+            grad_norm = grad_norm ** (1 / 2)
+            # print('Gradient norm:', grad_norm.item())
+
             sum_loss += l.item()
         wrong = 0
         for batch in dataloader:
