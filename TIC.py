@@ -2,9 +2,11 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from load_data import XplaneDataset, DataLoader
-
+import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 device = 'cuda:0'
 # device = 'cpu'
+
 
 class TIC(nn.Module):
     def __init__(self, num_sensors, delta_t, num_clusters):
@@ -50,20 +52,27 @@ class TIC(nn.Module):
 
 
 criterion = nn.CrossEntropyLoss()
-l1_lambda = 0.01
+l1_lambda = .01
 
 
 def loss(model, outputs, targets):
-    # 计算交叉熵损失
     ce_loss = criterion(outputs, targets)
-
-    # 计算L1正则化损失
-    l1_loss = torch.norm(model.mat, p=1, dim=[1, 2]).mean()
-
-    # 将两种损失结合起来
+    l1_loss = torch.norm(model.mat, p=1, dim=[1, 2]).max()
     res = ce_loss + l1_lambda * l1_loss
-
     return res
+
+
+def calculate_accuracy(model, dataloader):
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for data, labels in dataloader:
+            outputs = model(data)
+            _, predictions = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predictions == labels).sum().item()
+    accuracy = correct / total
+    return accuracy
 
 
 if __name__ == '__main__':
@@ -71,17 +80,18 @@ if __name__ == '__main__':
     num_sensors = 12
     delta_t = 3
     num_clusters = 4
-    num_epoch = 5
+    num_epoch = 10
 
     dataset = XplaneDataset(delta_t)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     net = TIC(num_sensors, delta_t, num_clusters)
     net = net.to(device)
-    updater = torch.optim.Adam(net.parameters(), lr=.001)
+    updater = torch.optim.Adam(net.parameters(), lr=0.01)
 
     for i in range(num_epoch):
         sum_loss = 0
+        correct = 0
         for batch in dataloader:
             X, y = batch
             X, y = X.to(device), y.to(device)
@@ -91,21 +101,23 @@ if __name__ == '__main__':
             l.backward()
             updater.step()
 
-            # 计算梯度范数并打印
-            grad_norm = 0
-            for p in net.parameters():
-                grad_norm += torch.norm(p.grad) ** 2
-            grad_norm = grad_norm ** (1 / 2)
-            # print('Gradient norm:', grad_norm.item())
-
-            sum_loss += l.item()
-        wrong = 0
         for batch in dataloader:
             X, y = batch
             X, y = X.to(device), y.to(device)
-            ans = torch.sum(abs(net(X) - y), dim=1)
-            wrong += torch.count_nonzero(ans).item()
+            y_hat = net(X)
+            sum_loss += l.item()
+            predictions = torch.argmax(y_hat, dim=1)
+            labels = torch.argmax(y, dim=1)
+            correct += (predictions == labels).sum().item()
 
-        print('epoch', i+1, ':', (1 - wrong/len(dataset.X))*100, '%')
+        print('epoch', i+1, ':', (correct/len(dataset.X))*100, '%')
         print('\tloss:', sum_loss/len(dataset.X))
 
+    matrix=-abs(net.mat[0].detach().cpu().numpy())
+    cmap = 'gray'
+    norm = colors.Normalize(vmin=0, vmax=matrix.max())
+    plt.imshow(matrix, cmap=cmap, norm=norm)
+    # 显示颜色条
+    plt.colorbar()
+    # 显示图像
+    plt.show()
